@@ -41,7 +41,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       { expiresIn: "1d" }
     );
     // 3. Response
-    res.json({
+    res.status(201).json({
       message: "user created successfully",
       accessToken: token,
     });
@@ -50,4 +50,4 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createUser };
+
