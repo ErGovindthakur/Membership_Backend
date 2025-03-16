@@ -4,8 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userModel from "./userModel";
 import { myConfig } from "../config/config";
-import { json } from "stream/consumers";
-import { access } from "fs";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
@@ -52,40 +50,41 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const loginUser = async(req:Request,res:Response,next:NextFunction) => {
-  const {email,password} = req.body;
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
 
   try {
     // 1. validation
-    if(!email || !password){
-      return next(createHttpError(400,"All fields are required"))
+    if (!email || !password) {
+      return next(createHttpError(400, "All fields are required"));
     }
 
-    const user = await userModel.findOne({email});
+    const user = await userModel.findOne({ email });
 
-    if(!user){
-      return next(createHttpError(404,"User does not exist with this email"))
+    if (!user) {
+      return next(createHttpError(404, "User does not exist with this email"));
     }
 
-    const isMatch = await bcrypt.compare(password,user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch){
-      return next(createHttpError(401,"user name or password incorrect"))
+    if (!isMatch) {
+      return next(createHttpError(401, "user name or password incorrect"));
     }
-
 
     // 2. Process
 
-    const token =await jwt.sign({sub:user._id}, myConfig.jwtSecret as string, {expiresIn:'1d',algorithm:'HS256'});
-
+    const token = await jwt.sign(
+      { sub: user._id },
+      myConfig.jwtSecret as string,
+      { expiresIn: "1d", algorithm: "HS256" }
+    );
 
     res.status(200).json({
-      message:"User login successfully",
-      accessToken:token
-    })
-    
+      message: "User login successfully",
+      accessToken: token,
+    });
   } catch (error) {
-    return next(createHttpError(500,"Error while login user"+error))
+    return next(createHttpError(500, "Error while login user" + error));
   }
-}
-export { createUser,loginUser };
+};
+export { createUser, loginUser };
