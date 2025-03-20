@@ -4,6 +4,7 @@ import path from "node:path";
 import createHttpError from "http-errors";
 import bookModel from "./bookModel";
 import fs from "node:fs";
+import { AuthRequest } from "../middleware/authenticate";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
   const { title, genre } = req.body;
@@ -45,14 +46,19 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
         format: "pdf",
       }
     );
+    /*
     console.log(uploadResult);
     console.log(bookFileUploadResult);
+    */
 
+   
+    const _req = req as AuthRequest;
+    
     // creating new book
     const newBook = await bookModel.create({
       title,
       genre,
-      author: "67d52511d091850a35a65201",
+      author: _req.userId,
       coverImg: uploadResult.secure_url,
       file: bookFileUploadResult.secure_url,
     });
@@ -64,7 +70,6 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     res
       .status(201)
       .json({ message: "Book created successfully", id: newBook._id });
-
   } catch (error) {
     console.log(error);
     return next(createHttpError(500, "Failed to upload file"));
