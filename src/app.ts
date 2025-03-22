@@ -1,10 +1,18 @@
 import express from "express";
+import cors from "cors";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import userRouter from "./user/userRouter";
 import bookRouter from "./Book/bookRouter";
+import { myConfig } from "./config/config";
 
 
 const app = express();
+
+// Allowing cors policy
+app.use(cors({
+     origin:myConfig.fontEndDomain,
+     credentials:true
+}));
 
 // Essential middlewares 
 app.use(express.json());
