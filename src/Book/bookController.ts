@@ -111,7 +111,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
       const uploadResult = await cloudinary.uploader.upload(filePath, {
         filename_override: completeCoverImg,
         folder: "Book Covers",
-        format:coverImgMimeType
+        format: coverImgMimeType,
       });
 
       completeCoverImg = uploadResult.secure_url;
@@ -137,7 +137,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
           resource_type: "raw",
           filename_override: completeFileName,
           folder: "Book Content",
-          format:'pdf'
+          format: "pdf",
         }
       );
       completeFileName = bookFileUploadResult.secure_url;
@@ -162,4 +162,41 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, "Failed to update book"));
   }
 };
-export { createBook, updateBook };
+
+const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // code
+
+    // Add pagination
+    const books = await bookModel.find();
+
+    res.status(200).json({
+      message: "These are the books",
+      books,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createHttpError(500, "Failed to fetch all books"));
+  }
+};
+
+const getSingleBook = async(req:Request,res:Response,next:NextFunction) => {
+  const {bookId} = req.params;
+  try{
+    // code
+    const book = await bookModel.findById({_id:bookId});
+
+    if(!book){
+      return next(createHttpError(404,"Book not found "))
+    }
+
+    res.status(200).json({
+      book
+    })
+
+  }catch(error){
+    console.log(error);
+    return next(createHttpError(500,"Failed to fetch single book"))
+  }
+}
+export { createBook, updateBook, getAllBooks,getSingleBook };
