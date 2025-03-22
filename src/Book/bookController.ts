@@ -233,7 +233,7 @@ const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
 
     await bookModel.deleteOne({_id:bookId});
 
-    res.status(204).json({
+    res.status(200).json({
       message:"Book deleted now...",
       BookId:bookId
     })
