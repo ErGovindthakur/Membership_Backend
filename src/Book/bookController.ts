@@ -199,4 +199,48 @@ const getSingleBook = async(req:Request,res:Response,next:NextFunction) => {
     return next(createHttpError(500,"Failed to fetch single book"))
   }
 }
-export { createBook, updateBook, getAllBooks,getSingleBook };
+
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+  const {bookId} = req.params;
+  try{
+    // code
+    const book = await bookModel.findOne({_id:bookId});
+
+    if(!book){
+      return next(createHttpError(404,"Book not found "))
+    }
+
+    // Access checking
+    const _req = req as AuthRequest;
+    if (book.author.toString() !== _req.userId) {
+      return next(createHttpError(403, "Unauthorized user:can't delete book"));
+    }
+
+
+    const coverFileSplits = book.coverImg.split("/")
+    
+    const coverImgPublicId = coverFileSplits.at(-2)+'/'+(coverFileSplits.at(-1)?.split('.').at(-2));
+    console.log(coverImgPublicId);
+
+    const bookFileSpits = book.file.split('/');
+    const bookFilePublicId = bookFileSpits.at(-2)+"/"+bookFileSpits.at(-1);
+    console.log(bookFilePublicId);
+    // deleting cloudinary file
+    await cloudinary.uploader.destroy(coverImgPublicId)
+    await cloudinary.uploader.destroy(bookFilePublicId, {
+      resource_type:'raw'
+    })
+
+    await bookModel.deleteOne({_id:bookId});
+
+    res.status(204).json({
+      message:"Book deleted now...",
+      BookId:bookId
+    })
+  }
+  catch(error){
+    console.log(error);
+    return next(createHttpError(500,"Failed to delete book"));
+  }
+}
+export { createBook, updateBook, getAllBooks,getSingleBook,deleteBook };
