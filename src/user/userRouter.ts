@@ -1,5 +1,6 @@
 import express from "express";
-import { createUser, loginUser } from "./userController";
+import { createUser, loginUser, logoutUser } from "./userController";
+import authenticate from "../middleware/authenticate";
 
 const userRouter = express.Router();
 
@@ -7,5 +8,6 @@ const userRouter = express.Router();
 
 userRouter.post("/register",createUser);
 userRouter.post("/login",loginUser);
+userRouter.get("/logout",authenticate,logoutUser);
 
 export default userRouter;

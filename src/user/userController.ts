@@ -87,4 +87,23 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, "Error while login user" + error));
   }
 };
-export { createUser, loginUser };
+
+
+const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Clear token from HTTP-only cookies
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Secure only in production
+      sameSite: "strict",
+    });
+
+    res.status(200).json({
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    console.log("Error while logging out -:",error);
+    return next(createHttpError(500, "Error while logging out user"));
+  }
+};
+export { createUser, loginUser, logoutUser };
